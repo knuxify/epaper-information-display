@@ -26,7 +26,14 @@ from waveshare.epaper import SetCurrentDisplayRotation
 from waveshare.epaper import SetEnFontSize
 from waveshare.epaper import ClearScreen
 
-sleep_length = 20
+############
+# Settings #
+############
+
+class Settings:
+	"""Contains settings."""
+	autoadvance = True # can be toggled with the up button
+	autoadvance_delay = 20
 
 dev = InputDevice('/dev/input/event0')
 dev.grab()
@@ -47,16 +54,21 @@ async def pause():
 			if event.type == ecodes.EV_KEY and event.value == 1:
 				#if event.code == 108:
 				#	print("down")
-				#elif event.code == 103:
-				#	print("up")
-				if event.code == 105:
+				if event.code == 103:
+					# up button
+					if Settings.autoadvance:
+						Settings.autoadvance = False
+					else:
+						Settings.autoadvance = True
+					return True
+				elif event.code == 105:
 					return "previous"
 				elif event.code == 106:
 					return "next"
 				elif event.code == 28:
 					return True
 	async def timer():
-		await asyncio.sleep(sleep_length)
+		await asyncio.sleep(Settings.autoadvance_delay)
 		return "next"
 	async def minute_timer():
 		current_time = datetime.datetime.now()
@@ -69,8 +81,10 @@ async def pause():
 			else:
 				return True
 	keyboard_task = asyncio.create_task(keyboard(dev))
-	timer_task = asyncio.create_task(timer())
-	tasks = [keyboard_task, timer_task]
+	tasks = [keyboard_task]
+	if Settings.autoadvance:
+		timer_task = asyncio.create_task(timer())
+		tasks.append(timer_task)
 	if current_display_num == 0:
 		minute_timer_task = asyncio.create_task(minute_timer())
 		tasks.append(minute_timer_task)
@@ -194,6 +208,12 @@ if __name__ == '__main__':
 		while True:
 			paper.read_responses(timeout=10)
 			current_display(paper)
+			if not Settings.autoadvance:
+				paper.send(SetPallet(SetPallet.WHITE, SetPallet.WHITE))
+				paper.send(FillRectangle(750, 540, 790, 590))
+				paper.send(SetPallet(SetPallet.LIGHT_GRAY, SetPallet.WHITE))
+				paper.send(FillRectangle(760, 550, 766, 580))
+				paper.send(FillRectangle(774, 550, 780, 580))
 			paper.send(RefreshAndUpdate())
 
 			paper.send(ClearScreen())

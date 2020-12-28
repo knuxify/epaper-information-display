@@ -6,9 +6,19 @@ Information display using a 4.3inch e-Paper UART module from Waveshare and a Ras
 
 Dependencies from the requirements.txt file, plus [raspi-uart-waveshare](https://github.com/jarret/raspi-uart-waveshare) and ``fortune``.
 
+Note for Raspberry Pi 4 users: the raspi-uart-waveshare library hardcodes the serial path to the one used on the Pi 3 and 2, you'll need to open the epaper.py file and replace it with ``/dev/ttyS0``.
+
 You might need to change the keyboard input path, by default it's hardcoded to ``/dev/input/event0``.
 
 Display 2 has a hardcoded segment that checks my homeserver, you might want to get rid of it.
+
+## Usage
+
+Run ``./info.py``.
+
+Press the left and right arrow keys to change between displays ("slides"). Press Enter to reload the current display.
+
+Press up to toggle pausing the autoadvance (normally the display switches to the next one every 20 seconds). A small pause icon will show up in the bottom right corner. **Note that pausing will reload the current display** due to the way the pause function works, so if you want to pause to save some information on screen, you're out of luck. (I might rewrite it to save the existing information when toggling at some point, though.)
 
 ## Adding a new display
 
