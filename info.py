@@ -105,8 +105,13 @@ def multiline_print(x, y, string, font_size, paper):
 	charno = 0
 	y = y - 10 - font_size
 	for word in string.split():
-		charno = charno + len(word) + 1
-		if charno > 34:
+		proper_lenght = 0
+		punct_count = word.count(',') + word.count('.') + word.count("'") + word.count(':') + word.count(';') + word.count('(') + word.count(')') - 1
+		if punct_count != 0 and not (punct_count % 2) == 0:
+			punct_count = punct_count - 1
+		proper_lenght = len(word) - (punct_count // 2)
+		charno = charno + proper_lenght + 1
+		if charno >= 35:
 			charno = 0
 			printable = " ".join(lines[lineno])
 			y = y + 10 + font_size
@@ -146,7 +151,7 @@ def display_1(paper):
 	paper.send(FillRectangle(20, 94, 780, 96))
 	paper.send(SetPallet(SetPallet.BLACK, SetPallet.WHITE))
 	paper.send(SetEnFontSize(SetEnFontSize.FOURTYEIGHT))
-	fortune = str(subprocess.Popen("fortune", stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0])[2:-1].replace('\\t',' ').replace('\\n',' ')
+	fortune = str(subprocess.Popen("fortune", stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0])[2:-1].replace('\\t',' ').replace('\\n',' ').replace("\\`","'").replace("\\'","'")
 	multiline_print(20, 110, fortune, 48, paper)
 
 def display_2(paper):
